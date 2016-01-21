@@ -1,0 +1,10 @@
+lslink - List symbolic link chains
+----------------------------------
+
+  Like readlink -e, but lists each step of the way. For example:
+
+    $ [mjhoy@nixos ~]$ lslink `which emacs`
+    /nix/var/nix/profiles/default/bin/emacs
+     /nix/store/i3vcbm0jh3cqylm37v472p0xhdniwy48-emacs-24.5/bin/emacs
+     /nix/store/i3vcbm0jh3cqylm37v472p0xhdniwy48-emacs-24.5/bin/emacs-24.5
+

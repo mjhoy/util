@@ -1,0 +1,22 @@
+name:                lslink
+version:             0.1.0.0
+synopsis:            List symbolic link chains
+description:         List symbolic link chains
+license:             GPL-2
+license-file:        LICENSE
+author:              Michael Hoy
+maintainer:          mjh@mjhoy.com
+category:            System
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable lslink
+  main-is:             Main.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base >=4.8 && <4.9,
+                       directory,
+                       unix,
+                       filepath
+  -- hs-source-dirs:
+  default-language:    Haskell2010
