@@ -1,0 +1,45 @@
+libmjh -- common C stuff
+
+  Taken/copied liberally from Michael Kerrisk, *The Linux Programming
+  Interface*. Provides various error functions, number parsing, other
+  common things.
+
+
+USING
+
+  This is sort of testing out how to package up a c lib using nix. In
+  your config.nix,
+
+    libmjh = import ~/path/to/libmjh { inherit stdenv; };
+
+  In other C projects that use it; e.g.,
+
+    #include "mjh_common.h"
+
+    int foo() {
+      int fd;
+      fd = open("/tmp/foo");
+      if (fd == -1)
+        errExit("open");
+      close(fd);
+      return 0;
+    }
+
+  a default.nix might have something like:
+
+    buildInputs = [ libmjh ];
+    inherit libmjh;
+
+  The `buildInputs' line sets the include path for the headers, and
+  the `inherit libmjh' sets an environment variable $libmjh that
+  points to the installed path, in which lib/libmjh.a is the actual
+  library.
+  
+  So, with a build (Makefile), run something like
+
+    gcc -o foo my.c files.c ${libmjh}/lib/libmjh.a
+
+
+LICENSE
+
+  LGPLv3. See COPYING.
