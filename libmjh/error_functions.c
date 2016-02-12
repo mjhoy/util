@@ -33,9 +33,13 @@ static void terminate(Boolean use_exit3)
       * outputting the caller-supplied error message specified in
         'format' and 'ap'. */
 
+/* TODO move to log.c? */
 static void output_error(Boolean use_err,
                          int err,
                          Boolean flush_stdout,
+                         const char *file,
+                         int line,
+                         const char *func,
                          const char *format,
                          va_list ap)
 {
@@ -51,7 +55,9 @@ static void output_error(Boolean use_err,
     else
         snprintf(err_text, BUF_SIZE, ":");
 
-    snprintf(buf, BUF_SIZE, "ERROR%s %s\n", err_text, user_msg);
+    snprintf(buf, BUF_SIZE, "ERROR %s (%s:%d)%s %s\n",
+             func, file, line,
+             err_text, user_msg);
 
     if (flush_stdout)
         fflush(stdout);       /* Flush any pending stdout */
@@ -62,7 +68,10 @@ static void output_error(Boolean use_err,
 /* Display error message including 'errno' diagnostic, and
    return to caller */
 
-void err_msg(const char *format, ...)
+void err_msg_internal(const char *file,
+                      int line,
+                      const char *func,
+                      const char *format, ...)
 {
     va_list arg_list;
     int saved_errno;
@@ -70,7 +79,7 @@ void err_msg(const char *format, ...)
     saved_errno = errno;       /* In case we change it here */
 
     va_start(arg_list, format);
-    output_error(TRUE, errno, TRUE, format, arg_list);
+    output_error(TRUE, errno, TRUE, file, line, func, format, arg_list);
     va_end(arg_list);
 
     errno = saved_errno;
@@ -79,12 +88,15 @@ void err_msg(const char *format, ...)
 /* Display error message including 'errno' diagnostic, and
    terminate the process */
 
-void err_exit(const char *format, ...)
+void err_exit_internal(const char *file,
+                       int line,
+                       const char *func,
+                       const char *format, ...)
 {
     va_list arg_list;
 
     va_start(arg_list, format);
-    output_error(TRUE, errno, TRUE, format, arg_list);
+    output_error(TRUE, errno, TRUE, file, line, func, format, arg_list);
     va_end(arg_list);
 
     terminate(TRUE);
@@ -105,12 +117,15 @@ void err_exit(const char *format, ...)
    stdio buffers that were partially filled by the caller and without
    invoking exit handlers that were established by the caller. */
 
-void _err_exit(const char *format, ...)
+void _err_exit_internal(const char *file,
+                        int line,
+                        const char *func,
+                        const char *format, ...)
 {
     va_list arg_list;
 
     va_start(arg_list, format);
-    output_error(TRUE, errno, FALSE, format, arg_list);
+    output_error(TRUE, errno, FALSE, file, line, func, format, arg_list);
     va_end(arg_list);
 
     terminate(FALSE);
@@ -119,12 +134,16 @@ void _err_exit(const char *format, ...)
 /* The following function does the same as errExit(), but expects
    the error number in 'errnum' */
 
-void err_exit_en(int errnum, const char *format, ...)
+void err_exit_en_internal(int errnum,
+                          const char *file,
+                          int line,
+                          const char *func,
+                          const char *format, ...)
 {
     va_list arg_list;
 
     va_start(arg_list, format);
-    output_error(TRUE, errnum, TRUE, format, arg_list);
+    output_error(TRUE, errnum, TRUE, file, line, func, format, arg_list);
     va_end(arg_list);
 
     terminate(TRUE);
@@ -132,12 +151,15 @@ void err_exit_en(int errnum, const char *format, ...)
 
 /* Print an error message (without an 'errno' diagnostic) */
 
-void fatal(const char *format, ...)
+void fatal_internal(const char *file,
+                    int line,
+                    const char *func,
+                    const char *format, ...)
 {
     va_list arg_list;
 
     va_start(arg_list, format);
-    output_error(FALSE, 0, TRUE, format, arg_list);
+    output_error(FALSE, 0, TRUE, file, line, func, format, arg_list);
     va_end(arg_list);
 
     terminate(TRUE);
