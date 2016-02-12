@@ -14,6 +14,7 @@ stdenv.mkDerivation rec {
     cp mjh_common.h $out/include
     cp get_num.h $out/include
     cp error_functions.h $out/include
+    cp log.h $out/include
 
   '';
 }

@@ -10,6 +10,7 @@
 
 #include "get_num.h"
 #include "error_functions.h"
+#include "log.h"
 
 typedef enum { FALSE, TRUE } Boolean;
 
