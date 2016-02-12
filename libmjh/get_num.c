@@ -9,8 +9,7 @@
    the value of a command-line argument ('arg'), the name of that
    command-line argument ('name'), and a diagnostic error message ('msg'). */
 
-static void
-gnFail(const char *fname, const char *msg, const char *arg, const char *name)
+static void gn_fail(const char *fname, const char *msg, const char *arg, const char *name)
 {
     fprintf(stderr, "%s error", fname);
     if (name != NULL)
@@ -31,15 +30,14 @@ gnFail(const char *fname, const char *msg, const char *arg, const char *name)
    the command-line argument 'arg'. 'fname' and 'name' are used to print a
    diagnostic message in case an error is detected when processing 'arg'. */
 
-static long
-getNum(const char *fname, const char *arg, int flags, const char *name)
+static long get_num(const char *fname, const char *arg, int flags, const char *name)
 {
     long res;
     char *endptr;
     int base;
 
     if (arg == NULL || *arg == '\0')
-        gnFail(fname, "null or empty string", arg, name);
+        gn_fail(fname, "null or empty string", arg, name);
 
     base = (flags & GN_ANY_BASE) ? 0 : (flags & GN_BASE_8) ? 8 :
                         (flags & GN_BASE_16) ? 16 : 10;
@@ -47,16 +45,16 @@ getNum(const char *fname, const char *arg, int flags, const char *name)
     errno = 0;
     res = strtol(arg, &endptr, base);
     if (errno != 0)
-        gnFail(fname, "strtol() failed", arg, name);
+        gn_fail(fname, "strtol() failed", arg, name);
 
     if (*endptr != '\0')
-        gnFail(fname, "nonnumeric characters", arg, name);
+        gn_fail(fname, "nonnumeric characters", arg, name);
 
     if ((flags & GN_NONNEG) && res < 0)
-        gnFail(fname, "negative value not allowed", arg, name);
+        gn_fail(fname, "negative value not allowed", arg, name);
 
     if ((flags & GN_GT_0) && res <= 0)
-        gnFail(fname, "value must be > 0", arg, name);
+        gn_fail(fname, "value must be > 0", arg, name);
 
     return res;
 }
@@ -64,24 +62,22 @@ getNum(const char *fname, const char *arg, int flags, const char *name)
 /* Convert a numeric command-line argument string to a long integer. See the
    comments for getNum() for a description of the arguments to this function. */
 
-long
-getLong(const char *arg, int flags, const char *name)
+long get_long(const char *arg, int flags, const char *name)
 {
-    return getNum("getLong", arg, flags, name);
+    return get_num("get_long", arg, flags, name);
 }
 
 /* Convert a numeric command-line argument string to an integer. See the
    comments for getNum() for a description of the arguments to this function. */
 
-int
-getInt(const char *arg, int flags, const char *name)
+int get_int(const char *arg, int flags, const char *name)
 {
     long res;
 
-    res = getNum("getInt", arg, flags, name);
+    res = get_num("get_int", arg, flags, name);
 
     if (res > INT_MAX || res < INT_MIN)
-        gnFail("getInt", "integer out of range", arg, name);
+        gn_fail("get_int", "integer out of range", arg, name);
 
     return (int) res;
 }

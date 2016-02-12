@@ -9,8 +9,8 @@
 #define GN_BASE_8     0200      /* Value is expressed in octal */
 #define GN_BASE_16    0400      /* Value is expressed in hexadecimal */
 
-long getLong(const char *arg, int flags, const char *name);
+long get_long(const char *arg, int flags, const char *name);
 
-int getInt(const char *arg, int flags, const char *name);
+int get_int(const char *arg, int flags, const char *name);
 
 #endif

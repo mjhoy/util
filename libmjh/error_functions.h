@@ -1,7 +1,7 @@
 #ifndef ERROR_FUNCTIONS_H
 #define ERROR_FUNCTIONS_H
 
-void errMsg(const char *format, ...);
+void err_msg(const char *format, ...);
 
 #ifdef __GNUC__
 
@@ -14,16 +14,16 @@ void errMsg(const char *format, ...);
 #define NORETURN
 #endif
 
-void errExit(const char *format, ...) NORETURN ;
-
 void err_exit(const char *format, ...) NORETURN ;
 
-void errExitEN(int errnum, const char *format, ...) NORETURN ;
+void _err_exit(const char *format, ...) NORETURN ;
+
+void err_exit_en(int errnum, const char *format, ...) NORETURN ;
 
 void fatal(const char *format, ...) NORETURN ;
 
-void usageErr(const char *format, ...) NORETURN ;
+void usage_err(const char *format, ...) NORETURN ;
 
-void cmdLineErr(const char *format, ...) NORETURN ;
+void cmd_line_err(const char *format, ...) NORETURN ;
 
 #endif

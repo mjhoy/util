@@ -6,8 +6,7 @@
 #ifdef __GNUC__                 /* Prevent 'gcc -Wall' complaining  */
 __attribute__ ((__noreturn__))  /* if we call this function as last */
 #endif                          /* statement in a non-void function */
-static void
-terminate(Boolean useExit3)
+static void terminate(Boolean use_exit3)
 {
     char *s;
 
@@ -19,7 +18,7 @@ terminate(Boolean useExit3)
 
     if (s != NULL && *s != '\0')
         abort();
-    else if (useExit3)
+    else if (use_exit3)
         exit(EXIT_FAILURE);
     else
         _exit(EXIT_FAILURE);
@@ -34,25 +33,27 @@ terminate(Boolean useExit3)
       * outputting the caller-supplied error message specified in
         'format' and 'ap'. */
 
-static void
-outputError(Boolean useErr, int err, Boolean flushStdout,
-        const char *format, va_list ap)
+static void output_error(Boolean use_err,
+                         int err,
+                         Boolean flush_stdout,
+                         const char *format,
+                         va_list ap)
 {
 #define BUF_SIZE 500
-    char buf[BUF_SIZE], userMsg[BUF_SIZE], errText[BUF_SIZE];
+    char buf[BUF_SIZE], user_msg[BUF_SIZE], err_text[BUF_SIZE];
 
-    vsnprintf(userMsg, BUF_SIZE, format, ap);
+    vsnprintf(user_msg, BUF_SIZE, format, ap);
 
-    if (useErr)
-        snprintf(errText, BUF_SIZE, " [%s %s]",
-                (err > 0 && err <= MAX_ENAME) ?
-                ename[err] : "?UNKNOWN?", strerror(err));
+    if (use_err)
+        snprintf(err_text, BUF_SIZE, " [%s %s]",
+                 (err > 0 && err <= MAX_ENAME) ?
+                 ename[err] : "?UNKNOWN?", strerror(err));
     else
-        snprintf(errText, BUF_SIZE, ":");
+        snprintf(err_text, BUF_SIZE, ":");
 
-    snprintf(buf, BUF_SIZE, "ERROR%s %s\n", errText, userMsg);
+    snprintf(buf, BUF_SIZE, "ERROR%s %s\n", err_text, user_msg);
 
-    if (flushStdout)
+    if (flush_stdout)
         fflush(stdout);       /* Flush any pending stdout */
     fputs(buf, stderr);
     fflush(stderr);           /* In case stderr is not line-buffered */
@@ -61,32 +62,30 @@ outputError(Boolean useErr, int err, Boolean flushStdout,
 /* Display error message including 'errno' diagnostic, and
    return to caller */
 
-void
-errMsg(const char *format, ...)
+void err_msg(const char *format, ...)
 {
-    va_list argList;
-    int savedErrno;
+    va_list arg_list;
+    int saved_errno;
 
-    savedErrno = errno;       /* In case we change it here */
+    saved_errno = errno;       /* In case we change it here */
 
-    va_start(argList, format);
-    outputError(TRUE, errno, TRUE, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    output_error(TRUE, errno, TRUE, format, arg_list);
+    va_end(arg_list);
 
-    errno = savedErrno;
+    errno = saved_errno;
 }
 
 /* Display error message including 'errno' diagnostic, and
    terminate the process */
 
-void
-errExit(const char *format, ...)
+void err_exit(const char *format, ...)
 {
-    va_list argList;
+    va_list arg_list;
 
-    va_start(argList, format);
-    outputError(TRUE, errno, TRUE, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    output_error(TRUE, errno, TRUE, format, arg_list);
+    va_end(arg_list);
 
     terminate(TRUE);
 }
@@ -94,8 +93,8 @@ errExit(const char *format, ...)
 /* Display error message including 'errno' diagnostic, and
    terminate the process by calling _exit().
 
-   The relationship between this function and errExit() is analogous
-   to that between _exit(2) and exit(3): unlike errExit(), this
+   The relationship between this function and err_exit() is analogous
+   to that between _exit(2) and exit(3): unlike err_exit(), this
    function does not flush stdout and calls _exit(2) to terminate the
    process (rather than exit(3), which would cause exit handlers to be
    invoked).
@@ -106,14 +105,13 @@ errExit(const char *format, ...)
    stdio buffers that were partially filled by the caller and without
    invoking exit handlers that were established by the caller. */
 
-void
-err_exit(const char *format, ...)
+void _err_exit(const char *format, ...)
 {
-    va_list argList;
+    va_list arg_list;
 
-    va_start(argList, format);
-    outputError(TRUE, errno, FALSE, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    output_error(TRUE, errno, FALSE, format, arg_list);
+    va_end(arg_list);
 
     terminate(FALSE);
 }
@@ -121,45 +119,42 @@ err_exit(const char *format, ...)
 /* The following function does the same as errExit(), but expects
    the error number in 'errnum' */
 
-void
-errExitEN(int errnum, const char *format, ...)
+void err_exit_en(int errnum, const char *format, ...)
 {
-    va_list argList;
+    va_list arg_list;
 
-    va_start(argList, format);
-    outputError(TRUE, errnum, TRUE, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    output_error(TRUE, errnum, TRUE, format, arg_list);
+    va_end(arg_list);
 
     terminate(TRUE);
 }
 
 /* Print an error message (without an 'errno' diagnostic) */
 
-void
-fatal(const char *format, ...)
+void fatal(const char *format, ...)
 {
-    va_list argList;
+    va_list arg_list;
 
-    va_start(argList, format);
-    outputError(FALSE, 0, TRUE, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    output_error(FALSE, 0, TRUE, format, arg_list);
+    va_end(arg_list);
 
     terminate(TRUE);
 }
 
 /* Print a command usage error message and terminate the process */
 
-void
-usageErr(const char *format, ...)
+void usage_err(const char *format, ...)
 {
-    va_list argList;
+    va_list arg_list;
 
     fflush(stdout);           /* Flush any pending stdout */
 
     fprintf(stderr, "Usage: ");
-    va_start(argList, format);
-    vfprintf(stderr, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    vfprintf(stderr, format, arg_list);
+    va_end(arg_list);
 
     fflush(stderr);           /* In case stderr is not line-buffered */
     exit(EXIT_FAILURE);
@@ -168,17 +163,16 @@ usageErr(const char *format, ...)
 /* Diagnose an error in command-line arguments and
    terminate the process */
 
-void
-cmdLineErr(const char *format, ...)
+void cmd_line_err(const char *format, ...)
 {
-    va_list argList;
+    va_list arg_list;
 
     fflush(stdout);           /* Flush any pending stdout */
 
     fprintf(stderr, "Command-line usage error: ");
-    va_start(argList, format);
-    vfprintf(stderr, format, argList);
-    va_end(argList);
+    va_start(arg_list, format);
+    vfprintf(stderr, format, arg_list);
+    va_end(arg_list);
 
     fflush(stderr);           /* In case stderr is not line-buffered */
     exit(EXIT_FAILURE);
